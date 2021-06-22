@@ -7,6 +7,13 @@ class CommunicationSelect(enum.Enum):
 
 _com_dial = CommunicationSelect.Primary
 
+def com_swap_com():
+    if get_com_dial() == CommunicationSelect.Primary:
+        return 'COM_STBY_RADIO_SWAP'
+    if get_com_dial() == CommunicationSelect.Secondary:
+        return 'COM2_RADIO_SWAP' # doesn't work
+    return 'COM_STBY_RADIO_SWAP'
+
 def set_com_dial(dial):
     global _com_dial
     _com_dial = dial

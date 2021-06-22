@@ -1,6 +1,5 @@
 import logging
 import threading
-import _thread
 from threading import Lock
 from queue import Queue
 import time
@@ -9,6 +8,7 @@ import traceback
 import os
 import serial
 import pygame
+
 from button_bytes import keypress_dictionary
 from switch_dictionary import switch_dictionary
 from SimConnect import *
@@ -16,8 +16,7 @@ from transponder import *
 from com import *
 from nav import *
 from button_helpers import *
-
-DEBUG = True
+from mydebug import DEBUG
 
 prev_time = time.time()
 current_time = time.time()
@@ -34,7 +33,6 @@ sim_connect = SimConnect()
 aircraft_requests = AircraftRequests(sim_connect, _time=0)
 aircraft_events = AircraftEvents(sim_connect)
 
-FPS = 30
 AIRCRAFT_TYPE = 0 # holder for type of aircraft
 
 DISPLAY_XPNDR = 0 # display transponder
@@ -52,6 +50,9 @@ COM_UPDATE = False
 NAV_UPDATE = False
 XPNDR_UPDATE = False
 
+# start with primary
+COM_DIAL = CommunicationSelect.Primary
+
 # only update the display what is needed
 # causes a delay if trying to update everything at once
 def update_com():
@@ -59,32 +60,37 @@ def update_com():
     global DISPLAY_COM_ACTIVE2
     global DISPLAY_COM_STANDBY1
     global DISPLAY_COM_STANDBY2
+    global COM_DIAL
+
+    COM_DIAL = get_com_dial()
 
     if DEBUG: print("update_com()")
-    DISPLAY_COM_ACTIVE1 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:1')
-    #DISPLAY_COM_ACTIVE2 = aircraf_requests.get('COM_ACTIVE_FREQUENCY:2')
-    DISPLAY_COM_STANDBY1 = aircraft_requests.get('COM_STANDBY_FREQUENCY:1')
-    #DISPLAY_COM_STANDBY2 = aircraft_requests.get('COM_STANDBY_FREQUENCY:2')
 
-    display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
-    if DEBUG: print(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
-    display_serial_port.write(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))
-    if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))
+    if COM_DIAL == CommunicationSelect.Primary:
+        temp_com_active1 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:1')
+        temp_com_standby1 = aircraft_requests.get('COM_STANDBY_FREQUENCY:1')
+        # prevents display from blinking when updating
+        if temp_com_standby1 != DISPLAY_COM_STANDBY1:
+            DISPLAY_COM_STANDBY1 = temp_com_standby1
+            display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
+            if DEBUG: print(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
+            if temp_com_active1 != DISPLAY_COM_ACTIVE1:
+                DISPLAY_COM_ACTIVE1 = temp_com_active1
+                display_serial_port.write(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))
+                if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))
 
-    '''display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY2) + "\n",'utf-8'))
-    if DEBUG: print(bytes("g" + str(DISPLAY_COM_STANDBY2) + "\n",'utf-8'))
-    display_serial_port.write(bytes("o" + str(DISPLAY_COM_ACTIVE2) + "\n",'utf-8'))
-    if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE2) + "\n",'utf-8'))'''
-
-    '''if active: DISPLAY_COM_ACTIVE1 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:1')
-    if active: DISPLAY_COM_ACTIVE2 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:2')
-    if standby: DISPLAY_COM_STANDBY1 = aircraft_requests.get('COM_STANDBY_FREQUENCY:1')
-    if standby: DISPLAY_COM_STANDBY2 = aircraft_requests.get('COM_STANDBY_FREQUENCY:2')
-
-    if standby: display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
-    if DEBUG: print(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
-    if active: display_serial_port.write(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))
-    if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE1) + "\n",'utf-8'))'''
+    if COM_DIAL == CommunicationSelect.Secondary:
+        temp_com_active2 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:2')
+        temp_com_standby2 = aircraft_requests.get('COM_STANDBY_FREQUENCY:2')
+        # prevents display from blinking when updating
+        if temp_com_standby2 != DISPLAY_COM_STANDBY2:
+            DISPLAY_COM_STANDBY2 = temp_com_standby2
+            display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY2) + "\n",'utf-8'))
+            if DEBUG: print(bytes("g" + str(DISPLAY_COM_STANDBY2) + "\n",'utf-8'))
+            if temp_com_active2 != DISPLAY_COM_ACTIVE2:
+                DISPLAY_COM_ACTIVE2 = temp_com_active2
+                display_serial_port.write(bytes("o" + str(DISPLAY_COM_ACTIVE2) + "\n",'utf-8'))
+                if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE2) + "\n",'utf-8'))
 
 def update_nav():
     pass
@@ -93,8 +99,13 @@ def update_nav():
 
 def update_xpndr():
     global DISPLAY_XPNDR
-    DISPLAY_XPNDR = get_xpndr()
-    display_serial_port.write(bytes("g" + str(DISPLAY_XPNDR) + "\n",'utf-8'))
+    temp_xpndr = float(get_xpndr())*0.00001 # make display read 0.0xxxx...
+                                            # last 4 digits tranponder code
+    # prevent the display from updating if it doesn't happen
+    # stops display from blinking
+    if temp_xpndr != DISPLAY_XPNDR:
+        DISPLAY_XPNDR = temp_xpndr
+        display_serial_port.write(bytes("r" + str(DISPLAY_XPNDR) + "\n",'utf-8'))
 
 def get_xpndr():
     # get() returns a hex version of an int
@@ -103,6 +114,7 @@ def get_xpndr():
     return transponder.lstrip("0x")
 
 # --------------------- START JOYSTICK ITEMS --------------------------------
+FPS = 30
 
 pygame.init()
 pygame.joystick.init()
@@ -149,6 +161,9 @@ def joystick_main_thread(blank):
         time.sleep(1/FPS)
 # --------------------- END JOYSTICK ITEMS ----------------------------------
 
+
+
+
 # --------------------- START DIAL ITEMS ------------------------------------
 def arduino_main_thread(blank):
     convert_key = 'NONE'
@@ -173,6 +188,10 @@ def arduino_main_thread(blank):
                     print(is_transponder(ser.hex()))
 
                 convert_key = convert_keyboard_input(ser.hex())
+
+                # if com swap button pressed
+                if ser.hex == "06":
+                    convert_key = com_swap_com()
 
                 # if transponder dials pressed
                 if ser.hex() == "38" or ser.hex() == "39" or ser.hex() == "40":
@@ -226,27 +245,20 @@ def arduino_main_thread(blank):
 
             time.sleep(0.01)
             ser = 0 # Reset serial data
-            lock.acquire()
-            COM_UPDATE = False
-            NAV_UPDATE = False
-            XPNDR_UPDATE = False
-            lock.release()
         except serial.SerialTimeoutException:
             print('Data could not be read')
             time.sleep(0.01)
 
         # this keeps the display update thread going for 2 seconds after
         # a dial was moved, otherwise there will be missed inputs
-        '''if (COM_UPDATE and (current_time - prev_time) > 2):
+        if ((COM_UPDATE or XPNDR_UPDATE) and (current_time - prev_time) > 2):
             print("False")
             lock.acquire()
             COM_UPDATE = False
             NAV_UPDATE = False
             XPNDR_UPDATE = False
             lock.release()
-            prev_time = time.time()'''
-
-
+            prev_time = time.time()
 
 # --------------------- END DIAL ITEMS --------------------------------------
 
