@@ -7,3 +7,5 @@ Python/MSFS/html
 
 
 Python/MSFS/SimConnect/__pycache__/SimConnect.cpython-39.pyc
+*.html
+*.pyc
