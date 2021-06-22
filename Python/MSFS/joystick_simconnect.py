@@ -1,16 +1,36 @@
 # Switches use a generic USB Encoder instead of Arduino
 # They are recognized as game input joystick
 
-import pygame
 import time
-import sys, traceback, os
+import sys
+import traceback
+import os
 import serial
+import pygame
 from SimConnect import *
 
 
 pygame.init()
-j = pygame.joystick.Joystick(0)
-j.init()
+pygame.joystick.init()
+#j = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count()) if pygame.joystick.Joystick(x).get_name == "Generic USB Joystick"]
+#j = pygame.joystick.Joystick(2)
+#for x in range(pygame.joystick.get_count()):
+#    joy = pygame.joystick.Joystick(x)
+#    joy.init()
+#    print(pygame.joystick.Joystick(x).get_name)
+#print(j)
+for x in range(pygame.joystick.get_count()):
+    print("werf")
+    joystick = pygame.joystick.Joystick(x)
+    joystick.init()
+    if joystick.get_name() == "Generic USB Joystick":
+        break
+#    joy = pygame.joystick.Joystick(x)
+#    joy.init()
+#    print(pygame.joystick.Joystick(x).get_name)
+#print(j)
+print(joystick.get_name())
+
 
 DEBUG = False
 FPS = 30
@@ -38,20 +58,21 @@ DEBUG = True
 sim_connect = SimConnect()
 aircraft_requests = AircraftRequests(sim_connect, _time=200)
 aircraft_events = AircraftEvents(sim_connect)
-event_funtion = 0
-convert_key = 'NONE' # byte identifier to SimConnect identifier holder
+#event_funtion = 0
+#convert_key = 'NONE' # byte identifier to SimConnect identifier holder
 
 # return NONE if no key set
 def convert_switch_input(key):
-    return switch_dictiionary[key]
+    return switch_dictionary[key]
 
-def check_dict(key):
+def check_switch_dictionary(key):
     if switch_dictionary[key] == 'NONE':
         return False
     return True
 
 def main():
-    global convert_key # byte identifier to SimConnect identifier holder
+    convert_key = 'NONE' # byte identifier to SimConnect identifier holder
+    event_function = 0
     while True:
         events = pygame.event.get()
         for event in events:
@@ -59,7 +80,7 @@ def main():
                 if DEBUG:
                     print(event.dict, event.joy,
                     switch_dictionary[str(event.button)], 'pressed')
-                if check_dict(str(event.button)):
+                if check_switch_dictionary(str(event.button)):
                     convert_key = switch_dictionary[str(event.button)]
                 else:
                     convert_key = 'NONE'
@@ -67,14 +88,15 @@ def main():
                 if DEBUG:
                     print(event.dict, event.joy,
                     switch_dictionary[str(event.button)], 'released')
-                if check_dict(str(event.button)):
+                if check_switch_dictionary(str(event.button)):
                     convert_key = switch_dictionary[str(event.button)]
                 else:
                     convert_key = 'NONE'
 
             if convert_key != 'NONE':
                 try:
-                    if DEBUG: print("FINAL CONVERT KEY ",convert_key)
+                    if DEBUG:
+                        print("FINAL CONVERT KEY ",convert_key)
                     event_function = aircraft_events.find(convert_key)
                     event_function()
                 except TypeError:

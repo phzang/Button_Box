@@ -22,8 +22,8 @@ keypress_dictionary = {
 "12": 'NONE', #Rotary_A_Button_Pressed  inop due to wireing
 "13": 'NONE', #Rotary_A_Button_Released inop due to wireing
 
-"14": "VOR1_OBI_INC", #Rotary_B_CW
-"15": 'VOR1_OBI_DEC', #Rotary_B_CCW
+"14": "z", #Rotary_B_CW VOR1
+"15": 'ctrl+shift+z', #Rotary_B_CCW
 "16": 'NONE', #Rotary_B_Button_Pressed
 "17": 'NONE', #Rotary_B_Button_Released
 
@@ -37,10 +37,10 @@ keypress_dictionary = {
 "24": 'FAKE_COM', #Rotary_D_Button_Pressed
 "25": 'NONE', #Rotary_D_Button_Released
 
-"26": 'ELEV_TRIM_UP', #Rotary_E_CW
-"27": 'ELEV_TRIM_DN', #Rotary_E_CCW
-"28": 'NONE', #Rotary_E_Button_Pressed trim reset
-"29": 'NONE', #Rotary_E_Button_Released
+"26": 'MIXTURE_INCR', #Rotary_E_CW      inop due to wireing
+"27": 'MIXTURE_DECR', #Rotary_E_CCW     inop due to wireing
+"28": 'NONE', #Rotary_E_Button_Pressed  inop due to wireing
+"29": 'NONE', #Rotary_E_Button_Released inop due to wireing
 
 "30": 'KOHLSMAN_INC', #Rotary_F_CW      Altimiter Adjustment
 "31": 'KOHLSMAN_DEC', #Rotary_F_CCW
@@ -67,8 +67,8 @@ keypress_dictionary = {
 "48": 'FAKE_NAV', #Rotary_J_Button_Pressed
 "49": 'NONE', #Rotary_J_Button_Released
 
-"50": 'IGN', #Rotary_J_Button_Pressed
-"51": 'ACC', #Rotary_J_Button_Released
-"52": 'START'
+"50": 'j', #Rotary_J_Button_Pressed
+"51": 'ctrl+k', #Rotary_J_Button_Released
+"52": 'l'
 
 }
