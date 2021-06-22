@@ -1,1 +1,9 @@
 Python/MSFS/__pycache__
+Python/MSFS/.vscode
+Python/MSFS/*.pylintrc
+Python/MSFS/*.dll
+Python/MSFS/*.bat
+Python/MSFS/html
+
+
+Python/MSFS/SimConnect/__pycache__/SimConnect.cpython-39.pyc
