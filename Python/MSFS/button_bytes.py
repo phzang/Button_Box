@@ -69,6 +69,6 @@ keypress_dictionary = {
 
 "50": 'IGN', #Rotary_J_Button_Pressed
 "51": 'ACC', #Rotary_J_Button_Released
-"52": 'START'
-
+"52": 'START',
+"53": 'MIDDLE'
 }

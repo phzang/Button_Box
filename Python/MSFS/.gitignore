@@ -1,0 +1,6 @@
+.pylintrc
+SimConnect.dll
+SimConnect/
+__pycache__/
+unused_backup/
+.vscode/

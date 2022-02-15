@@ -1,7 +1,9 @@
 from button_bytes import keypress_dictionary
 from switch_dictionary import switch_dictionary
 
-DEBUG = False
+global AIRCRAFT_TYPE
+
+from globals import DEBUG
 
 def get_aircraft_type(aircraft_requests):
     # ATC_MODEL returns a string similar to
@@ -30,7 +32,7 @@ def get_dial_input(key):
 def convert_keyboard_input(key):
     return keypress_dictionary[key]
 
-def check_switch_dictionary(key):
-    if switch_dictionary[key] == 'NONE':
+def check_switch_dictionary(key, AIRCRAFT_TYPE):
+    if switch_dictionary[AIRCRAFT_TYPE][key] == 'NONE':
         return False
     return True

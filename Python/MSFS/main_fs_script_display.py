@@ -1,3 +1,4 @@
+from lib2to3.pytree import convert
 import logging
 import threading
 from threading import Lock
@@ -8,15 +9,17 @@ import traceback
 import os
 import serial
 import pygame
+import pygame.locals
+import keyboard
 
 from button_bytes import keypress_dictionary
-from switch_dictionary import switch_dictionary
+
 from SimConnect import *
 from transponder import *
 from com import *
 from nav import *
 from button_helpers import *
-from mydebug import DEBUG
+from globals import DEBUG
 
 prev_time = time.time()
 current_time = time.time()
@@ -33,7 +36,7 @@ sim_connect = SimConnect()
 aircraft_requests = AircraftRequests(sim_connect, _time=0)
 aircraft_events = AircraftEvents(sim_connect)
 
-AIRCRAFT_TYPE = 0 # holder for type of aircraft
+AIRCRAFT_TYPE = 0
 
 DISPLAY_XPNDR = 0 # display transponder
 DISPLAY_COM_ACTIVE1 = 0 # display
@@ -135,21 +138,34 @@ def joystick_main_thread(blank):
             if event.type == pygame.JOYBUTTONDOWN:
                 if DEBUG:
                     print(event.dict, event.joy,
-                    switch_dictionary[str(event.button)], 'pressed')
-                if check_switch_dictionary(str(event.button)):
-                    convert_key = switch_dictionary[str(event.button)]
+                    switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'pressed')
+                if check_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
+                    convert_key = switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
                 else:
                     convert_key = 'NONE'
             elif event.type == pygame.JOYBUTTONUP:
                 if DEBUG:
                     print(event.dict, event.joy,
-                    switch_dictionary[str(event.button)], 'released')
-                if check_switch_dictionary(str(event.button)):
-                    convert_key = switch_dictionary[str(event.button)]
+                    switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'released')
+                if check_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
+                    convert_key = switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
                 else:
                     convert_key = 'NONE'
+            #elif event.type == pygame.KEYDOWN:
+            #   if event.key == pygame.K_KP0:
 
-            if convert_key != 'NONE':
+            if convert_key == 'ENGINE_MASTER':
+                #keyboard.press_and_release('0')
+                #newevent = pygame.event.Event(pygame.locals.KEYDOWN, unicode="a", key=pygame.locals.K_KP0, mod=pygame.locals.KMOD_NONE) #create the event
+                #pygame.event.post(newevent) #add the event to the queue
+                #time.sleep(0.01)
+                #newevent = pygame.event.Event(pygame.locals.KEYUP, unicode="a", key=pygame.locals.K_KP0, mod=pygame.locals.KMOD_NONE) #create the event
+                #pygame.event.post(newevent) #add the event to the queue
+                print("yay")
+                convert_key = 'NONE'
+
+
+            elif convert_key != 'NONE':
                 try:
                     if DEBUG:
                         print("FINAL CONVERT KEY ",convert_key)
@@ -193,8 +209,19 @@ def arduino_main_thread(blank):
                 if ser.hex == "06":
                     convert_key = com_swap_com()
 
+                # key won't turn off, have to manually turn off through the cockpit
+                # if key is turned
+                elif ser.hex() == "53":
+                    if AIRCRAFT_TYPE == "MODEL_DA40":
+                        convert_key = "TOGGLE_MASTER_BATTERY"
+
+                # if key is turned all the way to start
+                elif ser.hex() == "52":
+                    if AIRCRAFT_TYPE == "MODEL_DA40":
+                        convert_key = "MAGNETO_START"
+
                 # if transponder dials pressed
-                if ser.hex() == "38" or ser.hex() == "39" or ser.hex() == "40":
+                elif ser.hex() == "38" or ser.hex() == "39" or ser.hex() == "40":
                     convert_key = return_transponder_key_lookup(ser.hex())
                     XPNDR_UPDATE = True
                 # if communication dials pressed
