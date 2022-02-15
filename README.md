@@ -1,5 +1,5 @@
 # Button_Box
-Python and Arduino code to make my Button Box work.  
+Python and Arduino code to make my Microsoft Flight Simulator (MSFS) and X-Plane 11 Button Box work.  
 
 Box is comprised of a Mega 2560 R3 (for dials and buttons) and Zero Delay USB Encoder (for switches).
 Ardino sends a single byte representing the state of the rotary encoders (left, right, push, release) and buttons (push, release).
