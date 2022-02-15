@@ -22,8 +22,8 @@ def get_com_dial():
     global _com_dial
     return _com_dial
 
-# return True if com dial is used
 def is_com(key):
+    # return True if com dial is used
     if int(key) >= 18 and int(key) <= 24:
         return True
     return False
@@ -35,6 +35,7 @@ def switch_com_dial():
     set_com_dial(CommunicationSelect.Primary)
 
 def return_com_key_lookup(key):
+    # Returns SimConnect lookup for coms
     if is_com(key):
         if key == "18": # turn Rotary_C_CW
             if get_com_dial() == CommunicationSelect.Primary:

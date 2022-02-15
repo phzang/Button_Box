@@ -1,3 +1,10 @@
+# Main display script
+# Uses pygame.joystick for the toggle switches
+# __main__ function has 3 threads:
+# 1. joystick (toggle swithches)
+# 2. arduino (rotary dials and buttons)
+# 3. display (7 segment display)
+
 from lib2to3.pytree import convert
 import logging
 import threading
@@ -36,6 +43,7 @@ sim_connect = SimConnect()
 aircraft_requests = AircraftRequests(sim_connect, _time=0)
 aircraft_events = AircraftEvents(sim_connect)
 
+# Sets default values before SimConnect updates them
 AIRCRAFT_TYPE = 0
 
 DISPLAY_XPNDR = 0 # display transponder
@@ -56,9 +64,9 @@ XPNDR_UPDATE = False
 # start with primary
 COM_DIAL = CommunicationSelect.Primary
 
-# only update the display what is needed
-# causes a delay if trying to update everything at once
 def update_com():
+    # Only update the display what is needed
+    # It causes a delay if trying to update everything at once
     global DISPLAY_COM_ACTIVE1
     global DISPLAY_COM_ACTIVE2
     global DISPLAY_COM_STANDBY1
@@ -72,7 +80,7 @@ def update_com():
     if COM_DIAL == CommunicationSelect.Primary:
         temp_com_active1 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:1')
         temp_com_standby1 = aircraft_requests.get('COM_STANDBY_FREQUENCY:1')
-        # prevents display from blinking when updating
+        # Only update number if different, prevents display from blinking when updating
         if temp_com_standby1 != DISPLAY_COM_STANDBY1:
             DISPLAY_COM_STANDBY1 = temp_com_standby1
             display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY1) + "\n",'utf-8'))
@@ -85,7 +93,7 @@ def update_com():
     if COM_DIAL == CommunicationSelect.Secondary:
         temp_com_active2 = aircraft_requests.get('COM_ACTIVE_FREQUENCY:2')
         temp_com_standby2 = aircraft_requests.get('COM_STANDBY_FREQUENCY:2')
-        # prevents display from blinking when updating
+        # Only update number if different, prevents display from blinking when updating
         if temp_com_standby2 != DISPLAY_COM_STANDBY2:
             DISPLAY_COM_STANDBY2 = temp_com_standby2
             display_serial_port.write(bytes("g" + str(DISPLAY_COM_STANDBY2) + "\n",'utf-8'))
@@ -96,6 +104,7 @@ def update_com():
                 if DEBUG: print(bytes("o" + str(DISPLAY_COM_ACTIVE2) + "\n",'utf-8'))
 
 def update_nav():
+    # Currently do not have 7 segment displays connected for navation
     pass
     DISPLAY_NAV_ACTIVE1 = aircraft_requests.get('NAV_ACTIVE_FREQUENCY:1')
     display_serial_port.write(bytes("o" + str(DISPLAY_NAV_ACTIVE1) + "\n",'utf-8'))
@@ -104,8 +113,7 @@ def update_xpndr():
     global DISPLAY_XPNDR
     temp_xpndr = float(get_xpndr())*0.00001 # make display read 0.0xxxx...
                                             # last 4 digits tranponder code
-    # prevent the display from updating if it doesn't happen
-    # stops display from blinking
+    # Only update number if different, prevents display from blinking when updating
     if temp_xpndr != DISPLAY_XPNDR:
         DISPLAY_XPNDR = temp_xpndr
         display_serial_port.write(bytes("r" + str(DISPLAY_XPNDR) + "\n",'utf-8'))
@@ -122,7 +130,7 @@ FPS = 30
 pygame.init()
 pygame.joystick.init()
 
-# finds the button box joystick from USB devices and initializes it
+# Finds the button box joystick from USB devices and initializes it
 for x in range(pygame.joystick.get_count()):
     joystick = pygame.joystick.Joystick(x)
     joystick.init()
@@ -155,17 +163,17 @@ def joystick_main_thread(blank):
             #   if event.key == pygame.K_KP0:
 
             if convert_key == 'ENGINE_MASTER':
+                # Does not work currently, MSFS doesn't recognize pygame keyboard events, why?
                 #keyboard.press_and_release('0')
                 #newevent = pygame.event.Event(pygame.locals.KEYDOWN, unicode="a", key=pygame.locals.K_KP0, mod=pygame.locals.KMOD_NONE) #create the event
                 #pygame.event.post(newevent) #add the event to the queue
                 #time.sleep(0.01)
                 #newevent = pygame.event.Event(pygame.locals.KEYUP, unicode="a", key=pygame.locals.K_KP0, mod=pygame.locals.KMOD_NONE) #create the event
                 #pygame.event.post(newevent) #add the event to the queue
-                print("yay")
                 convert_key = 'NONE'
 
-
             elif convert_key != 'NONE':
+                # Looks up and executes SimConnect function
                 try:
                     if DEBUG:
                         print("FINAL CONVERT KEY ",convert_key)
@@ -224,6 +232,7 @@ def arduino_main_thread(blank):
                 elif ser.hex() == "38" or ser.hex() == "39" or ser.hex() == "40":
                     convert_key = return_transponder_key_lookup(ser.hex())
                     XPNDR_UPDATE = True
+
                 # if communication dials pressed
                 elif (int(ser.hex()) >= 18 and int(ser.hex()) <= 24):
                     convert_key = return_com_key_lookup(ser.hex())
@@ -231,13 +240,16 @@ def arduino_main_thread(blank):
                     COM_UPDATE = True
                     lock.release()
                     if DEBUG: print("COM_UPDATE ", COM_UPDATE)
+
                 # if navigation dials pressed
                 elif (int(ser.hex()) >= 42 and int(ser.hex()) <= 48):
                     convert_key = return_nav_key_lookup(ser.hex())
                     lock.acquire()
                     NAV_UPDATE = True
                     lock.release()
-                # sets trim for different aircraft types
+
+                # Resets trim for different aircraft types
+                # Each aircraft starts with a different default trim level
                 elif int(ser.hex()) == 28:
                     event_function = aircraft_events.find('AXIS_ELEV_TRIM_SET')
                     # if DEBUG: print(AIRCRAFT_TYPE)
@@ -255,15 +267,19 @@ def arduino_main_thread(blank):
                         event_function()
 
                         if ser.hex() == "06":
+                            # if com swap button is pressed
                             lock.acquire()
                             COM_UPDATE = True
                             lock.release()
                         if COM_UPDATE:
+                            # resets time for updating the 7 digit display
                             prev_time = time.time()
                         elif NAV_UPDATE:
+                            # Currently no 7 digit display for navigation
                             pass
                             #update_nav()
                         elif XPNDR_UPDATE:
+                            # Currently no 7 digit display for transponder
                             pass
                             #update_xpndr()
 
@@ -276,9 +292,9 @@ def arduino_main_thread(blank):
             print('Data could not be read')
             time.sleep(0.01)
 
-        # this keeps the display update thread going for 2 seconds after
-        # a dial was moved, otherwise there will be missed inputs
-        if ((COM_UPDATE or XPNDR_UPDATE) and (current_time - prev_time) > 2):
+        if ((COM_UPDATE or XPNDR_UPDATE) and (current_time - prev_time) > 2):            
+            # This keeps the display update thread going for 2 seconds after
+            # a dial was moved, otherwise there will be missed inputs
             print("False")
             lock.acquire()
             COM_UPDATE = False
@@ -296,6 +312,7 @@ def thread_function(name):
     print("Thread %s: ending", name)
 
 def print_display():
+    # Print display in console for debug purposes
     global AIRCRAFT_TYPE
     global DISPLAY_XPNDR
     global DISPLAY_COM_ACTIVE1
@@ -338,6 +355,7 @@ def print_display():
     print("NAV STANDBY2: ", format(DISPLAY_NAV_STANDBY2, '.3f'))
 
 def update_display_thread(input):
+    # Only run update functions if needed
     while True:
         global COM_UPDATE
         global NAV_UPDATE
@@ -359,11 +377,13 @@ def set_cache_values():
 
 
 if __name__ == '__main__':
-    #update_com() # won't work without moving a button, why?
+    # Three threads:
+    # 1. joystick from pygame.joystick is for toggle switches
+    # 2. arduino contains the dials and buttons
+    # 3. display contains the 7 segment displays, WIP
     print_display()
 
     try:
-        #x = threading.Thread(target=thread_function, args=(1,), daemon=True)
         joystick_thread = threading.Thread(target=joystick_main_thread, args=(1,),
             daemon=True)
         joystick_thread.start()

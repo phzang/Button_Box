@@ -3,6 +3,10 @@
 
 # ------ Lookup Table Buttons -------
 switch_dictionary = {
+    # The order of the toggle switches changes depending on the aircraft
+    # Not every aircraft has the switches in the same order
+    # Some still need SimConnect lookups, or
+    # SimConnect doesn't have the associated lookup
     'MODEL_C152': {
         "0": 'TOGGLE_MASTER_ALTERNATOR',
         "1": 'TOGGLE_MASTER_BATTERY',
@@ -33,6 +37,7 @@ switch_dictionary = {
     },
     'MODEL_DA40': {
         "0": 'ENGINE_MASTER', # Uses keyboard hotkey because simconnect doesn't have an ENGINE_MASTER command
+                              # Does not work currently, MSFS doesn't recognize pygame keyboard events, why?
         "1": 'TOGGLE_MASTER_BATTERY',
         "2": 'PITOT_HEAT_TOGGLE',
         "3": 'LANDING_LIGHTS_TOGGLE',
@@ -45,7 +50,7 @@ switch_dictionary = {
         "10": 'NONE',
         "11": 'NONE',  # Second Avionics Button
     },
-    'RANDOM': {
+    'DEFAULT': {
         "0": 'TOGGLE_MASTER_ALTERNATOR',
         "1": 'TOGGLE_MASTER_BATTERY',
         "2": 'FUEL_PUMP',

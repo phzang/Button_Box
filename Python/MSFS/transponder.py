@@ -9,15 +9,14 @@ class TransponderDial(enum.Enum):
 
 _transponder_dial = TransponderDial.First
 
-# return True if Transponder dial is used
 def is_transponder(key):
-    #print("transponder key: ", key)
+    # return True if Transponder dial is used
     if key == "38" or key == "39" or key == "40":
         return True
     return False
 
-# return False if error
 def set_transponder_dial(dial):
+    # return False if error
     global _transponder_dial
     _transponder_dial = dial
 
@@ -26,6 +25,7 @@ def get_transponder_dial():
     return _transponder_dial
 
 def return_transponder_key_lookup(key):
+    # returns Simconnect value for Transponder
     if is_transponder(key):
         if key == "38": # turn Rotary_H_CW
             if get_transponder_dial() == TransponderDial.First:
@@ -48,6 +48,8 @@ def return_transponder_key_lookup(key):
                 return 'XPNDR_1_DEC'
 
         if key == "40": # Rotary_H_Button_Pressed
+            # one button to change values, swaps between 1st, 2nd,
+            # 3rd, 4th Transponder number
             if get_transponder_dial() == TransponderDial.First:
                 set_transponder_dial(TransponderDial.Second)
                 return

@@ -15,8 +15,8 @@ def get_nav_dial():
     global _nav_dial
     return _nav_dial
 
-# return True if nav dial is used
 def is_nav(key):
+    # return True if navigation dial is used
     if int(key) >= 42 and int(key) <= 48:
         return True
     return False
@@ -28,6 +28,7 @@ def switch_nav_dial():
     set_nav_dial(NavigationSelect.Primary)
 
 def return_nav_key_lookup(key):
+    # returns navigation SimConnect lookup
     if is_nav(key):
         if key == "42": # turn Rotary_I_CW
             if get_nav_dial() == NavigationSelect.Primary:

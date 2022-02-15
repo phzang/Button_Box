@@ -1,5 +1,5 @@
-# Keyboard Press lookups
-# Hex : Button Press
+# Keyboard Press lookups - no longer uses keyboard, uses SimConnect
+# Hex : Button Press lookups from Arduino/misc_header.h
 
 # ------ Lookup Table Buttons -------
 
@@ -15,7 +15,7 @@ keypress_dictionary = {
 "08": 'NAV1_RADIO_SWAP', #Button_E_Pressed
 "09": 'NONE', #Button_E_Released
 
-# ------ Lookup Table Rotary -------
+# ------ Lookup Table Rotary Dials -------
 
 "10": 'NONE', #Rotary_A_CW              inop due to wireing
 "11": 'NONE', #Rotary_A_CCW             inop due to wireing
