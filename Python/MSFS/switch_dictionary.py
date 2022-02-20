@@ -50,6 +50,20 @@ switch_dictionary = {
         "10": 'NONE',
         "11": 'NONE',  # Second Avionics Button
     },
+    'Optica': {
+        "0": 'TOGGLE_MASTER_BATTERY',
+        "1": 'TOGGLE_MASTER_ALTERNATOR',
+        "2": 'FUEL_PUMP',
+        "3": 'PITOT_HEAT_TOGGLE',
+        "4": 'TOGGLE_NAV_LIGHTS',
+        "5": 'STROBES_TOGGLE',
+        "6": 'LANDING_LIGHTS_TOGGLE',
+        "7": 'TOGGLE_TAXI_LIGHTS',
+        "8": 'NONE',
+        "9": 'NONE', 
+        "10": 'NONE',
+        "11": 'NONE',  
+    },
     'DEFAULT': {
         "0": 'TOGGLE_MASTER_ALTERNATOR',
         "1": 'TOGGLE_MASTER_BATTERY',

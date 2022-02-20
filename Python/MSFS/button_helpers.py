@@ -1,9 +1,9 @@
 from button_bytes import keypress_dictionary
 from switch_dictionary import switch_dictionary
 
-global AIRCRAFT_TYPE
 
 from globals import DEBUG
+from globals import SUPPORTED_AIRCRAFT
 
 def get_aircraft_type(aircraft_requests):
     # ATC_MODEL returns a string similar to
@@ -12,11 +12,22 @@ def get_aircraft_type(aircraft_requests):
     # Remove beginning and trailing excess text to return
     # Type of aircraft
     request_aircraft_type = aircraft_requests.get('ATC_MODEL')
-    if DEBUG: print(request_aircraft_type)
+    if DEBUG: print(request_aircraft_type)    
     aircraft_type = request_aircraft_type.decode('utf8').replace(" ", "_")
-    aircraft_type = aircraft_type[13:] # removes TT:ATCCOM.AC_ from text
-    aircraft_type = aircraft_type[:len(aircraft_type)-7] # removes .0.text
-    return aircraft_type
+
+    # standard aircraft start with TT:ATCCOM.AC_
+    # search standard first then custom
+    if "TT:ATCCOM.AC_" in aircraft_type:
+        aircraft_type = aircraft_type[13:] # removes TT:ATCCOM.AC_ from text
+        aircraft_type = aircraft_type[:len(aircraft_type)-7] # removes .0.text
+    # otherwise custom aircraft, ex. b'Optica'
+    else:
+        print(aircraft_type)
+
+    if aircraft_type in SUPPORTED_AIRCRAFT:
+        return aircraft_type
+    else:
+        return "DEFAULT"
 
 def print_keyboard_lookup(key):
     # keyboardpress_dictionary in button_bytes.py

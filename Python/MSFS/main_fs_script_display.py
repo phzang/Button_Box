@@ -225,7 +225,7 @@ def arduino_main_thread(blank):
 
                 # if key is turned all the way to start
                 elif ser.hex() == "52":
-                    if AIRCRAFT_TYPE == "MODEL_DA40":
+                    if AIRCRAFT_TYPE == "MODEL_DA40" or AIRCRAFT_TYPE == "Optica":
                         convert_key = "MAGNETO_START"
 
                 # if transponder dials pressed
@@ -325,6 +325,7 @@ def print_display():
     global DISPLAY_NAV_STANDBY1
     global DISPLAY_NAV_STANDBY2
 
+    # returns DEFAULT if aircraft is not a supported aircraft
     AIRCRAFT_TYPE = get_aircraft_type(aircraft_requests)
     print("Current aircraft type is", AIRCRAFT_TYPE)
 
