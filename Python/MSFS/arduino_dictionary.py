@@ -1,9 +1,9 @@
-# Keyboard Press lookups - no longer uses keyboard, uses SimConnect
+# Arduino lookups - no longer uses keyboard, uses SimConnect
 # Hex : Button Press lookups from Arduino/misc_header.h
 
 # ------ Lookup Table Buttons -------
 
-keypress_dictionary = {
+arduino_dictionary = {
 "00": 'TOGGLE_PRIMER', #Button_A_Pressed
 "01": 'NONE', #Button_A_Released
 "02": 'NONE', #Button_B_Pressed

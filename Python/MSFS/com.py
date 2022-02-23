@@ -1,4 +1,4 @@
-from button_bytes import *
+from arduino_dictionary import arduino_dictionary
 import enum
 
 class CommunicationSelect(enum.Enum):
@@ -34,7 +34,7 @@ def switch_com_dial():
         return
     set_com_dial(CommunicationSelect.Primary)
 
-def return_com_key_lookup(key):
+def return_com_arduino_lookup(key):
     # Returns SimConnect lookup for coms
     if is_com(key):
         if key == "18": # turn Rotary_C_CW

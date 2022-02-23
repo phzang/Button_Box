@@ -1,4 +1,4 @@
-from button_bytes import *
+from arduino_dictionary import arduino_dictionary
 import enum
 
 class TransponderDial(enum.Enum):
@@ -24,7 +24,7 @@ def get_transponder_dial():
     global _transponder_dial
     return _transponder_dial
 
-def return_transponder_key_lookup(key):
+def return_transponder_arduino_lookup(key):
     # returns Simconnect value for Transponder
     if is_transponder(key):
         if key == "38": # turn Rotary_H_CW

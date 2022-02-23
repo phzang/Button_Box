@@ -1,4 +1,4 @@
-from button_bytes import *
+from arduino_dictionary import arduino_dictionary
 import enum
 
 class NavigationSelect(enum.Enum):
@@ -27,7 +27,7 @@ def switch_nav_dial():
         return
     set_nav_dial(NavigationSelect.Primary)
 
-def return_nav_key_lookup(key):
+def return_nav_arduino_lookup(key):
     # returns navigation SimConnect lookup
     if is_nav(key):
         if key == "42": # turn Rotary_I_CW

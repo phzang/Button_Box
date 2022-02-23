@@ -5,7 +5,7 @@
 # 2. arduino (rotary dials and buttons)
 # 3. display (7 segment display)
 
-from lib2to3.pytree import convert
+#from lib2to3.pytree import convert
 import logging
 import threading
 from threading import Lock
@@ -19,13 +19,14 @@ import pygame
 import pygame.locals
 import keyboard
 
-from button_bytes import keypress_dictionary
+from arduino_dictionary import arduino_dictionary
+from toggle_switch_dictionary import toggle_switch_dictionary
 
 from SimConnect import *
 from transponder import *
 from com import *
 from nav import *
-from button_helpers import *
+from helpers import *
 from globals import DEBUG
 
 prev_time = time.time()
@@ -146,17 +147,17 @@ def joystick_main_thread(blank):
             if event.type == pygame.JOYBUTTONDOWN:
                 if DEBUG:
                     print(event.dict, event.joy,
-                    switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'pressed')
-                if check_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
-                    convert_key = switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
+                    toggle_switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'pressed')
+                if verify_toggle_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
+                    convert_key = toggle_switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
                 else:
                     convert_key = 'NONE'
             elif event.type == pygame.JOYBUTTONUP:
                 if DEBUG:
                     print(event.dict, event.joy,
-                    switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'released')
-                if check_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
-                    convert_key = switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
+                    toggle_switch_dictionary[AIRCRAFT_TYPE][str(event.button)], 'released')
+                if verify_toggle_switch_dictionary(str(event.button), AIRCRAFT_TYPE):
+                    convert_key = toggle_switch_dictionary[AIRCRAFT_TYPE][str(event.button)]
                 else:
                     convert_key = 'NONE'
             #elif event.type == pygame.KEYDOWN:
@@ -207,11 +208,11 @@ def arduino_main_thread(blank):
                 #print(altitude)
 
                 if DEBUG:
-                    print_keyboard_lookup(ser.hex())
+                    print_arduino_lookup(ser.hex())
                 if DEBUG:
                     print(is_transponder(ser.hex()))
 
-                convert_key = convert_keyboard_input(ser.hex())
+                convert_key = convert_arduino_input(ser.hex())
 
                 # if com swap button pressed
                 if ser.hex == "06":
@@ -230,12 +231,12 @@ def arduino_main_thread(blank):
 
                 # if transponder dials pressed
                 elif ser.hex() == "38" or ser.hex() == "39" or ser.hex() == "40":
-                    convert_key = return_transponder_key_lookup(ser.hex())
+                    convert_key = return_transponder_arduino_lookup(ser.hex())
                     XPNDR_UPDATE = True
 
                 # if communication dials pressed
                 elif (int(ser.hex()) >= 18 and int(ser.hex()) <= 24):
-                    convert_key = return_com_key_lookup(ser.hex())
+                    convert_key = return_com_arduino_lookup(ser.hex())
                     lock.acquire()
                     COM_UPDATE = True
                     lock.release()
@@ -243,7 +244,7 @@ def arduino_main_thread(blank):
 
                 # if navigation dials pressed
                 elif (int(ser.hex()) >= 42 and int(ser.hex()) <= 48):
-                    convert_key = return_nav_key_lookup(ser.hex())
+                    convert_key = return_nav_arduino_lookup(ser.hex())
                     lock.acquire()
                     NAV_UPDATE = True
                     lock.release()

@@ -2,7 +2,7 @@
 # Hex : Button Press
 
 # ------ Lookup Table Buttons -------
-switch_dictionary = {
+toggle_switch_dictionary = {
     # The order of the toggle switches changes depending on the aircraft
     # Not every aircraft has the switches in the same order
     # Some still need SimConnect lookups, or
@@ -59,6 +59,20 @@ switch_dictionary = {
         "5": 'STROBES_TOGGLE',
         "6": 'LANDING_LIGHTS_TOGGLE',
         "7": 'TOGGLE_TAXI_LIGHTS',
+        "8": 'NONE',
+        "9": 'NONE', 
+        "10": 'NONE',
+        "11": 'NONE',  
+    },
+    'MODEL_ARROW': {
+        "0": 'TOGGLE_MASTER_BATTERY',
+        "1": 'TOGGLE_MASTER_ALTERNATOR',
+        "2": 'NONE',
+        "3": 'LANDING_LIGHTS_TOGGLE',
+        "4": 'NONE', # anti col light?
+        "5": 'PITOT_HEAT_TOGGLE',
+        "6": 'NONE',
+        "7": 'NONE',
         "8": 'NONE',
         "9": 'NONE', 
         "10": 'NONE',
