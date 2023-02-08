@@ -10,3 +10,7 @@ Python/MSFS/SimConnect/__pycache__/SimConnect.cpython-39.pyc
 *.html
 *.pyc
 *.bat
+*.dll
+*.vscode
+*.pylint
+*.gitignore
