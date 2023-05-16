@@ -3,7 +3,7 @@ from arduino_dictionary import arduino_dictionary
 from SimConnect import *
 from globals import DEBUG
 
-# min = -16383, max = 16383
+# min propeller = -16383, max propeller = 16383
 AXIS_PROPELLER = -16383
 AXIS_PROPELLER_CONV = 32766
 AXIS_PROPELLER_PERCENT = 0 # 0 - 100

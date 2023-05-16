@@ -3,7 +3,7 @@ from arduino_dictionary import arduino_dictionary
 from globals import DEBUG
 from SimConnect import *
 
-# min = -16383, max = 16383
+# min mixure = -16383, max mixture = 16383
 AXIS_MIXTURE = -16383
 AXIS_MIXTURE_CONV = 32766
 AXIS_MIXTURE_PERCENT = 0 # 0 - 100
